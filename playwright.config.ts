@@ -25,7 +25,7 @@ export default defineConfig({
 
     baseURL: "https://opensource-demo.orangehrmlive.com",
 
-    headless: false,
+    headless: true,
 
     actionTimeout: 60000,
 
