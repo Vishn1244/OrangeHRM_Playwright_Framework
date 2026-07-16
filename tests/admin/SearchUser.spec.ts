@@ -1,9 +1,15 @@
 import { test } from "../../fixtures/baseFixture";
+import { AdminWorkflow } from "../../workflows/AdminWorkflow";
 
-test("Search Admin User", async ({ adminPage }) => {
+test("Search User", async ({ pimPage, adminPage }) => {
 
-    await adminPage.searchUser("Admin");
+    const user = await AdminWorkflow.createAdminUser(
+        pimPage,
+        adminPage
+    );
 
-    await adminPage.verifyUserDisplayed("Admin");
+    await adminPage.searchUser(user.username);
+
+    await adminPage.verifyUserDisplayed(user.username);
 
 });

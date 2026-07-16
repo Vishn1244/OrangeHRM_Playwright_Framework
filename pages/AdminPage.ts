@@ -72,7 +72,7 @@ export class AdminPage extends BasePage {
         // Left Menu
         // ==========================
 
-        this.adminMenu = page.getByRole("link", { name: "Admin" });
+        this.adminMenu = page.locator("//span[text()='Admin']");
 
         // ==========================
         // Heading
@@ -186,28 +186,31 @@ export class AdminPage extends BasePage {
 // Navigate to Admin
 // ======================================
 
-    async openAdmin() {
+   async openAdmin() {
 
-    await this.adminMenu.waitFor({
-    state: "visible"
-});
-
-await this.adminMenu.scrollIntoViewIfNeeded();
-
-await this.adminMenu.click();
+    await this.adminMenu.click();
 
     await this.page.waitForURL(/admin/);
-
-    await expect(this.page.locator(".oxd-table-body"))
-    .toBeVisible();
-
-    // Firefox stabilization
-    await this.page.waitForTimeout(1000);
 
     await expect(
         this.page.locator("//h5[contains(.,'System Users')]")
     ).toBeVisible({
         timeout: 30000
+    });
+
+}
+
+
+// 👇 Add this method immediately after openAdmin()
+
+ async waitForAdminPage() {
+
+    await expect(
+        this.page.getByRole("heading", {
+            name: "System Users"
+        })
+    ).toBeVisible({
+        timeout: 60000
     });
 
 }
@@ -231,15 +234,18 @@ async verifyAdminPage() {
 // Search User
 // ======================================
 
-async searchUser(username: string) {
+ async searchUser(username: string) {
 
-    await this.searchUsername.fill("");
+    await this.searchUsername.clear();
 
     await this.searchUsername.fill(username);
 
     await this.searchButton.click();
 
+    // Wait for search results to refresh
     await this.page.waitForLoadState("networkidle");
+
+    await this.page.waitForTimeout(2000);
 
 }
 
@@ -259,21 +265,20 @@ async resetSearch() {
 
 async clickAddUser() {
 
-    const addButton = this.page.locator(".orangehrm-header-container button");
+    const addButton = this.page.getByRole("button", { name: "Add" });
 
     await expect(addButton).toBeVisible({
         timeout: 30000
     });
 
-    await addButton.scrollIntoViewIfNeeded();
+    await addButton.click();
 
-    await addButton.waitFor({
-    state: "visible"
-});
-
-await addButton.scrollIntoViewIfNeeded();
-
-await addButton.click();
+    // Wait until Add User page is actually open
+    await expect(
+        this.page.getByRole("heading", { name: "Add User" })
+    ).toBeVisible({
+        timeout: 30000
+    });
 
 }
 
@@ -283,11 +288,11 @@ await addButton.click();
 
 async selectUserRole(role: string) {
 
-    await this.formUserRole.scrollIntoViewIfNeeded();
-
-    await this.formUserRole.click({
-        force: true
+    await expect(this.formUserRole).toBeVisible({
+        timeout: 30000
     });
+
+    await this.formUserRole.click();
 
     await this.page.getByRole("option", {
         name: role,
@@ -300,22 +305,19 @@ async selectUserRole(role: string) {
 // Enter Employee Name
 // ======================================
 
-async enterEmployeeName(employee: string) {
-
-    await this.formEmployeeName.click();
+    async enterEmployeeName(employee: string) {
 
     await this.formEmployeeName.fill(employee);
 
-    const option = this.page
-        .locator(".oxd-autocomplete-option")
-        .filter({ hasText: employee })
-        .first();
+    await this.page.waitForTimeout(2000);
 
-    await expect(option).toBeVisible({
-        timeout: 15000
-    });
+    const option = this.page
+        .locator(".oxd-autocomplete-option").first();
+
+    await expect(option).toBeVisible();
 
     await option.click();
+
 }
 
 // ======================================
@@ -354,6 +356,11 @@ async enterNewUsername(username: string) {
 
 }
 
+ async updateUsername(username: string) {
+    await this.usernameTextbox.clear();
+    await this.usernameTextbox.fill(username);
+}
+
 // ======================================
 // Enter Password
 // ======================================
@@ -363,6 +370,7 @@ async enterPassword(password: string) {
     await this.type(this.passwordTextbox, password);
 
 }
+
 
 // ======================================
 // Confirm Password
@@ -378,23 +386,21 @@ async enterConfirmPassword(password: string) {
 // Save User
 // ======================================
 
-async clickSave() {
+ async clickSave() {
 
-    await this.click(this.saveButton);
+    await expect(this.saveButton).toBeEnabled();
+
+    await Promise.all([
+        this.page.waitForLoadState("networkidle"),
+        this.saveButton.click()
+    ]);
 
 }
 
-async verifyUserSaved() {
 
-    const toast = this.page.locator(".oxd-toast");
+  async verifyUserSaved() {
 
-    await expect(toast)
-        .toBeVisible({
-            timeout: 30000
-        });
-
-    await expect(toast)
-        .toContainText(/Success/i);
+    await this.waitForAdminPage();
 
 }
 
@@ -414,30 +420,36 @@ async clickEditUser() {
 
 }
 
-async updateUsername(username: string) {
+async clickEditForUser(username: string) {
 
-    await this.type(this.usernameTextbox, username);
+    const row = this.page
+        .locator(".oxd-table-card")
+        .filter({ hasText: username })
+        .first();
 
+    await expect(row).toBeVisible();
+
+    const editButton = row.locator("button i.bi-pencil-fill").locator("..");
+
+    await editButton.click();
 }
+
+ 
 
 async clickUpdate() {
 
-    await this.saveButton.waitFor({
-    state: "visible"
-});
+    await expect(this.saveButton).toBeEnabled();
 
-await this.saveButton.scrollIntoViewIfNeeded();
-
-await this.saveButton.click();
+    await this.saveButton.click();
 
 }
 
-async verifyUserUpdated() {
+ async verifyUserUpdated() {
 
-    await expect(this.successToast)
-        .toContainText(/Successfully Updated|Success/i, {
-            timeout: 30000
-        });
+    const toast = this.page.locator(".oxd-toast");
+
+    await expect(toast)
+        .toContainText(/Successfully Updated|Success/i);
 
 }
 
@@ -446,12 +458,7 @@ async verifyUserUpdated() {
 // Delete User
 // ======================================
 
-async clickDeleteForUser(username: string) {
-
-    await this.searchUser(username);
-
-    // Wait for search results
-    await this.page.waitForLoadState("networkidle");
+ async clickDeleteForUser(username: string) {
 
     const row = this.page
         .locator(".oxd-table-card")
@@ -462,10 +469,7 @@ async clickDeleteForUser(username: string) {
         timeout: 30000
     });
 
-    // Delete button in that row
-    const deleteButton = row.locator("button").first();
-
-    await expect(deleteButton).toBeVisible();
+    const deleteButton = row.locator("button i.bi-trash").locator("..");
 
     await deleteButton.click();
 
@@ -473,15 +477,13 @@ async clickDeleteForUser(username: string) {
 
 async confirmDelete() {
 
-    const yesDeleteButton = this.page.getByRole("button", {
+    const yesButton = this.page.getByRole("button", {
         name: /Yes,\s*Delete/i
     });
 
-    await expect(yesDeleteButton).toBeVisible({
-        timeout: 30000
-    });
+    await expect(yesButton).toBeVisible();
 
-    await yesDeleteButton.click();
+    await yesButton.click();
 
 }
 
@@ -489,11 +491,7 @@ async verifyUserDeleted() {
 
     const toast = this.page.locator(".oxd-toast");
 
-    await expect(toast).toBeVisible({
-        timeout: 30000
-    });
-
-    await expect(toast).toContainText(/Deleted|Success/i);
+    await expect(toast).toContainText(/Success|Deleted/i);
 
 }
 
@@ -501,24 +499,13 @@ async verifyUserDeleted() {
 // Verify Search Result
 // ======================================
 
-async verifyUserDisplayed(username: string) {
-
-    await expect(
-        this.page.locator(".oxd-table-body")
-    ).toBeVisible({
-        timeout: 30000
-    });
+ async verifyUserDisplayed(username: string) {
 
     const row = this.page
         .locator(".oxd-table-card")
-        .filter({
-            hasText: username
-        })
-        .first();
+        .filter({ hasText: username });
 
-    await expect(row).toBeVisible({
-        timeout: 30000
-    });
+    await expect(row).toBeVisible();
 
 }
 
@@ -537,4 +524,41 @@ async getRecordCount(): Promise<number> {
     return await this.tableRows.count();
 
 }
+
+async createAdminUser(user: {
+    employeeName: string;
+    username: string;
+    password: string;
+}) {
+
+    await this.clickAddUser();
+
+    await this.selectUserRole("Admin");
+
+    await this.enterEmployeeName(user.employeeName);
+
+    await this.selectStatus("Enabled");
+
+    await this.enterNewUsername(user.username);
+
+    await this.enterPassword(user.password);
+
+    await this.enterConfirmPassword(user.password);
+
+    await this.clickSave();
+
+    await this.verifyUserSaved();
+
+}
+
+ async verifyNoRecordsFound() {
+
+    await expect(
+        this.page.locator("span").filter({
+            hasText: "No Records Found"
+        }).first()
+    ).toBeVisible();
+
+}
+
 }

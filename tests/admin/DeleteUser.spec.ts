@@ -1,39 +1,23 @@
 import { test } from "../../fixtures/baseFixture";
-import { FakerUtils } from "../../utils/FakerUtils";
+import { AdminWorkflow } from "../../workflows/AdminWorkflow";
 
-test("Delete Admin User", async ({ adminPage }) => {
+test("Delete User", async ({ pimPage, adminPage }) => {
 
-    const username = FakerUtils.randomUsername();
+    const user = await AdminWorkflow.createAdminUser(
+        pimPage,
+        adminPage
+    );
 
-    // Create User
-    await adminPage.clickAddUser();
+    await adminPage.searchUser(user.username);
 
-    await adminPage.selectUserRole("Admin");
-
-    await adminPage.enterEmployeeName("Thomas Kutty Benny");
-
-    await adminPage.selectStatus("Enabled");
-
-    await adminPage.enterNewUsername(username);
-
-    await adminPage.enterPassword("Admin@123");
-
-    await adminPage.enterConfirmPassword("Admin@123");
-
-    await adminPage.clickSave();
-
-    await adminPage.verifyUserSaved();
-
-    // Search User
-    await adminPage.openAdmin();
-
-    await adminPage.searchUser(username);
-
-    // Delete User
-    await adminPage.clickDeleteForUser(username);
+    await adminPage.clickDeleteForUser(user.username);
 
     await adminPage.confirmDelete();
 
     await adminPage.verifyUserDeleted();
+
+    await adminPage.searchUser(user.username);
+
+    await adminPage.verifyNoRecordsFound();
 
 });

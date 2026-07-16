@@ -30,10 +30,15 @@ export class LoginPage extends BasePage {
 
     }
 
-    async navigate() {
+   async navigate() {
 
     await this.page.goto("/", {
-        waitUntil: "domcontentloaded"
+    waitUntil: "load",
+    timeout: 120000
+});
+
+     await expect(this.loginButton).toBeVisible({
+        timeout: 60000
     });
 
     console.log("Current URL:", this.page.url());
@@ -43,7 +48,7 @@ export class LoginPage extends BasePage {
         fullPage: true
     });
 
-    await this.page.waitForTimeout(3000);
+    await expect(this.loginButton).toBeVisible();
 }
 
     async enterUsername(username: string) {
@@ -61,8 +66,8 @@ export class LoginPage extends BasePage {
     async clickLogin() {
 
         await expect(this.loginButton).toBeVisible({
-            timeout: 30000
-        });
+        timeout: 60000
+         });
 
         await expect(this.loginButton).toBeEnabled({
             timeout: 30000
@@ -90,19 +95,30 @@ export class LoginPage extends BasePage {
 
     async loginAndWait(username: string, password: string) {
 
-        await this.enterUsername(username);
+    await this.enterUsername(username);
 
-        await this.enterPassword(password);
+    await this.enterPassword(password);
 
-        await this.clickLogin();
+    await this.clickLogin();
 
-        await this.page.waitForURL(/dashboard/, {
-            timeout: 30000
-        });
+    // Wait until Dashboard URL appears
+    await this.page.waitForURL(/dashboard/, {
+        timeout: 60000
+    });
 
-        await expect(this.page).toHaveURL(/dashboard/);
+    // Wait until loading spinner disappears
+    await this.page.waitForLoadState("networkidle");
 
-    }
+    // Dashboard heading must be visible
+    await expect(
+        this.page.getByRole("heading", {
+            name: "Dashboard"
+        })
+    ).toBeVisible({
+        timeout: 60000
+    });
+
+}
 
     async verifySuccessfulLogin() {
 

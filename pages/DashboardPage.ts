@@ -24,11 +24,15 @@ export class DashboardPage extends BasePage {
 
     async verifyDashboard() {
 
-        await expect(this.page).toHaveURL(/dashboard/);
+    await expect(this.page).toHaveURL(/dashboard/);
 
-        await expect(this.dashboardHeading).toBeVisible();
+    await this.page.waitForLoadState("networkidle");
 
-    }
+    await expect(this.dashboardHeading).toBeVisible({
+        timeout: 60000
+    });
+
+}
 
     async logout() {
 

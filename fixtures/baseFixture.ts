@@ -3,69 +3,55 @@ import { test as base, expect } from "@playwright/test";
 import { LoginPage } from "../pages/LoginPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { AdminPage } from "../pages/AdminPage";
+import { PimPage } from "../pages/PimPage";
 
 type MyFixtures = {
-  loginPage: LoginPage;
-  dashboardPage: DashboardPage;
-  adminPage: AdminPage;
+    loginPage: LoginPage;
+    dashboardPage: DashboardPage;
+    adminPage: AdminPage;
+    pimPage: PimPage;
 };
 
 export const test = base.extend<MyFixtures>({
 
-  // -------------------------
-  // Login Page
-  // -------------------------
-  loginPage: async ({ page }, use) => {
+    loginPage: async ({ page }, use) => {
 
-    const loginPage = new LoginPage(page);
+        const loginPage = new LoginPage(page);
 
-    await use(loginPage);
+        await loginPage.navigate();
 
-  },
+        await use(loginPage);
+    },
 
-  // -------------------------
-  // Dashboard Page
-  // Auto Login
-  // -------------------------
-  dashboardPage: async ({ page }, use) => {
+    dashboardPage: async ({ page }, use) => {
 
-    const loginPage = new LoginPage(page);
+        const loginPage = new LoginPage(page);
 
-    await loginPage.navigate();
+        await loginPage.navigate();
 
-    await loginPage.loginAndWait(
-        "Admin",
-        "admin123"
-    );
+        await loginPage.loginAndWait(
+            process.env.APP_USERNAME!,
+            process.env.APP_PASSWORD!
+        );
 
-    const dashboardPage = new DashboardPage(page);
+        const dashboardPage = new DashboardPage(page);
 
-    await use(dashboardPage);
+        await use(dashboardPage);
+    },
 
-},
+    adminPage: async ({ dashboardPage, page }, use) => {
 
-  // -------------------------
-  // Admin Page
-  // Auto Login
-  // -------------------------
-  adminPage: async ({ page }, use) => {
+        const adminPage = new AdminPage(page);
 
-    const loginPage = new LoginPage(page);
+        await use(adminPage);
+    },
 
-    await loginPage.navigate();
+    pimPage: async ({ dashboardPage, page }, use) => {
 
-    await loginPage.loginAndWait(
-      "Admin",
-      "admin123"
-    );
+        const pimPage = new PimPage(page);
 
-    const adminPage = new AdminPage(page);
-
-    await adminPage.openAdmin();
-
-    await use(adminPage);
-
-  }
+        await use(pimPage);
+    }
 
 });
 

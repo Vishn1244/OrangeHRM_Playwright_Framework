@@ -1,28 +1,11 @@
 import { test } from "../../fixtures/baseFixture";
-import { FakerUtils } from "../../utils/FakerUtils";
+import { AdminWorkflow } from "../../workflows/AdminWorkflow";
 
-test("Add New User", async ({ adminPage }) => {
+test("Add User", async ({ pimPage, adminPage }) => {
 
-    const username = FakerUtils.randomUsername();
-
-    await adminPage.openAdmin();
-
-    await adminPage.clickAddUser();
-
-    await adminPage.selectUserRole("Admin");
-
-    await adminPage.enterEmployeeName("Thomas Kutty Benny");
-
-    await adminPage.selectStatus("Enabled");
-
-    await adminPage.enterNewUsername(username);
-
-    await adminPage.enterPassword("Admin@123");
-
-    await adminPage.enterConfirmPassword("Admin@123");
-
-    await adminPage.clickSave();
-
-    await adminPage.verifyUserSaved();
+    await AdminWorkflow.createAdminUser(
+        pimPage,
+        adminPage
+    );
 
 });

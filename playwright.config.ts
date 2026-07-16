@@ -1,5 +1,15 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
 
+const env = process.env.TEST_ENV || "dev";
+
+dotenv.config({
+    path: `./config/${env}.env`
+});
+
+console.log("BASE_URL =", process.env.BASE_URL);
+console.log("APP_USERNAME =", process.env.APP_USERNAME);
+console.log("APP_PASSWORD =", process.env.APP_PASSWORD);
 export default defineConfig({
 
     testDir: "./tests",
@@ -23,7 +33,7 @@ export default defineConfig({
 
     use: {
 
-    baseURL: "https://opensource-demo.orangehrmlive.com",
+    baseURL: process.env.BASE_URL,
 
     headless: true,
 
