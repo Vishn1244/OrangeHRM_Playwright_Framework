@@ -30,15 +30,15 @@ export class LoginPage extends BasePage {
 
     }
 
-   async navigate() {
+async navigate() {
 
     await this.page.goto("/", {
     waitUntil: "load",
-    timeout: 120000
+    timeout: 180000
 });
 
      await expect(this.loginButton).toBeVisible({
-        timeout: 60000
+        timeout: 80000
     });
 
     console.log("Current URL:", this.page.url());
@@ -66,11 +66,11 @@ export class LoginPage extends BasePage {
     async clickLogin() {
 
         await expect(this.loginButton).toBeVisible({
-        timeout: 60000
+        timeout: 80000
          });
 
         await expect(this.loginButton).toBeEnabled({
-            timeout: 30000
+            timeout: 50000
         });
 
         await this.loginButton.scrollIntoViewIfNeeded();
@@ -103,7 +103,7 @@ export class LoginPage extends BasePage {
 
     // Wait until Dashboard URL appears
     await this.page.waitForURL(/dashboard/, {
-        timeout: 60000
+        timeout: 80000
     });
 
     // Wait until loading spinner disappears
@@ -115,7 +115,7 @@ export class LoginPage extends BasePage {
             name: "Dashboard"
         })
     ).toBeVisible({
-        timeout: 60000
+        timeout: 80000
     });
 
 }

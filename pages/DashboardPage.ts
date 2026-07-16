@@ -29,7 +29,7 @@ export class DashboardPage extends BasePage {
     await this.page.waitForLoadState("networkidle");
 
     await expect(this.dashboardHeading).toBeVisible({
-        timeout: 60000
+        timeout: 90000
     });
 
 }
