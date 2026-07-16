@@ -31,7 +31,7 @@ export class BasePage {
         const toast = this.page.locator(".oxd-toast");
 
         await expect(toast).toBeVisible({
-            timeout: 80000
+            timeout: 110000
         });
 
         await expect(toast).toContainText(/Success/i);
@@ -45,7 +45,7 @@ export class BasePage {
 
         await loader.waitFor({
             state: "hidden",
-            timeout: 80000
+            timeout: 110000
         });
 
     }

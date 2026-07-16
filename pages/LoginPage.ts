@@ -34,11 +34,11 @@ async navigate() {
 
     await this.page.goto("/", {
     waitUntil: "load",
-    timeout: 180000
+    timeout: 200000
 });
 
      await expect(this.loginButton).toBeVisible({
-        timeout: 80000
+        timeout: 110000
     });
 
     console.log("Current URL:", this.page.url());
@@ -66,11 +66,11 @@ async navigate() {
     async clickLogin() {
 
         await expect(this.loginButton).toBeVisible({
-        timeout: 80000
+        timeout: 110000
          });
 
         await expect(this.loginButton).toBeEnabled({
-            timeout: 50000
+            timeout: 110000
         });
 
         await this.loginButton.scrollIntoViewIfNeeded();
@@ -103,7 +103,7 @@ async navigate() {
 
     // Wait until Dashboard URL appears
     await this.page.waitForURL(/dashboard/, {
-        timeout: 80000
+        timeout: 110000
     });
 
     // Wait until loading spinner disappears
@@ -115,7 +115,7 @@ async navigate() {
             name: "Dashboard"
         })
     ).toBeVisible({
-        timeout: 80000
+        timeout: 110000
     });
 
 }

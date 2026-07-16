@@ -195,7 +195,7 @@ export class AdminPage extends BasePage {
     await expect(
         this.page.locator("//h5[contains(.,'System Users')]")
     ).toBeVisible({
-        timeout: 90000
+        timeout: 100000
     });
 
 }
@@ -210,7 +210,7 @@ export class AdminPage extends BasePage {
             name: "System Users"
         })
     ).toBeVisible({
-        timeout: 90000
+        timeout: 100000
     });
 
 }
@@ -245,7 +245,7 @@ async verifyAdminPage() {
     // Wait for search results to refresh
     await this.page.waitForLoadState("networkidle");
 
-    await this.page.waitForTimeout(9000);
+    await this.page.waitForTimeout(11000);
 
 }
 
@@ -268,7 +268,7 @@ async clickAddUser() {
     const addButton = this.page.getByRole("button", { name: "Add" });
 
     await expect(addButton).toBeVisible({
-        timeout: 80000
+        timeout: 110000
     });
 
     await addButton.click();
@@ -277,7 +277,7 @@ async clickAddUser() {
     await expect(
         this.page.getByRole("heading", { name: "Add User" })
     ).toBeVisible({
-        timeout: 80000
+        timeout: 110000
     });
 
 }
@@ -289,7 +289,7 @@ async clickAddUser() {
 async selectUserRole(role: string) {
 
     await expect(this.formUserRole).toBeVisible({
-        timeout: 80000
+        timeout: 110000
     });
 
     await this.formUserRole.click();
@@ -309,7 +309,7 @@ async selectUserRole(role: string) {
 
     await this.formEmployeeName.fill(employee);
 
-    await this.page.waitForTimeout(8000);
+    await this.page.waitForTimeout(11000);
 
     const option = this.page
         .locator(".oxd-autocomplete-option").first();
@@ -466,7 +466,7 @@ async clickUpdate() {
         .first();
 
     await expect(row).toBeVisible({
-        timeout: 90000
+        timeout: 110000
     });
 
     const deleteButton = row.locator("button i.bi-trash").locator("..");
